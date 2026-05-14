@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Заказ принят — Вкусняшки{% endblock %}
+{% block nav_class %}light{% endblock %}
+
+{% block extra_css %}
+<style>
+  .success-page { min-height:90vh; display:flex; align-items:center; justify-content:center; padding:7rem 1.5rem 3rem; }
+  .success-wrap { max-width:580px; width:100%; text-align:center; }
+
+  /* Animated checkmark */
+  .check-circle {
+    width:110px; height:110px; border-radius:50%;
+    background:linear-gradient(135deg,var(--rose),var(--purple));
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 2rem; position:relative;
+    box-shadow:0 15px 40px rgba(232,84,122,.35);
+    animation:popIn .6s cubic-bezier(.175,.885,.32,1.275) both;
+  }
+  .check-circle i { font-size:3rem; color:white; }
+  .check-circle::before {
+    content:''; position:absolute; inset:-8px; border-radius:50%;
+    border:3px solid rgba(232,84,122,.25);
+    animation:ringPulse 2s ease-in-out infinite;
+  }
+  .check-circle::after {
+    content:''; position:absolute; inset:-18px; border-radius:50%;
+    border:2px solid rgba(124,58,237,.15);
+    animation:ringPulse 2s ease-in-out infinite .5s;
+  }
+  @keyframes popIn { from{transform:scale(0) rotate(-180deg);opacity:0;} to{transform:scale(1) rotate(0);opacity:1;} }
+  @keyframes ringPulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.1);opacity:.5;} }
+
+  .success-title { font-family:'Playfair Display',serif; font-size:2.4rem; color:var(--text); margin-bottom:.6rem; }
+  .success-sub { color:var(--text-muted); font-size:1rem; margin-bottom:2rem; line-height:1.7; }
+
+  /* Order card */
+  .order-card {
+    background:white; border-radius:22px; padding:1.8rem;
+    box-shadow:0 10px 50px rgba(26,8,41,.1); border:1px solid var(--border);
+    margin-bottom:2rem; position:relative; overflow:hidden; text-align:left;
+  }
+  .order-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:4px;
+    background:linear-gradient(90deg,var(--rose),var(--gold),var(--purple));
+  }
+  .order-card-title { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--text); margin-bottom:1.2rem; display:flex; align-items:center; gap:.5rem; }
+  .order-row { display:flex; justify-content:space-between; align-items:flex-start; padding:.7rem 0; border-bottom:1px solid var(--border); gap:1rem; }
+  .order-row:last-child { border-bottom:none; }
+  .row-label { color:var(--text-muted); font-size:.88rem; flex-shrink:0; display:flex; align-items:center; gap:.4rem; }
+  .row-label i { color:var(--rose); width:14px; }
+  .row-value { font-weight:600; color:var(--text); font-size:.92rem; text-align:right; }
+  .total-row .row-label { font-weight:700; color:var(--text); font-size:1rem; }
+  .total-row .row-value {
+    font-size:1.5rem; font-weight:700;
+    background:linear-gradient(135deg,var(--rose),var(--purple));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+
+  /* Alert */
+  .alert-box {
+    background:linear-gradient(135deg,rgba(242,183,5,.1),rgba(242,183,5,.05));
+    border:1px solid rgba(242,183,5,.3); border-radius:14px;
+    padding:1rem 1.2rem; margin-bottom:2rem; text-align:left;
+    display:flex; align-items:flex-start; gap:.75rem;
+  }
+  .alert-box i { color:var(--gold); font-size:1.2rem; flex-shrink:0; margin-top:.1rem; }
+  .alert-box p { color:#7a6210; font-size:.9rem; line-height:1.6; margin:0; }
+  .alert-box strong { color:#5a4800; }
+
+  .btn-back { margin-top:.5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-page">
+  <div class="success-wrap">
+
+    <div class="check-circle" data-aos="zoom-in">
+      <i class="fas fa-check"></i>
+    </div>
+
+    <h1 class="success-title" data-aos="fade-up" data-aos-delay="100">Заказ принят!</h1>
+    <p class="success-sub" data-aos="fade-up" data-aos-delay="150">
+      Спасибо, <strong>{{ order.customer_name }}</strong>! Ваш заказ успешно оформлен.<br>
+      Мы скоро свяжемся с вами для подтверждения.
+    </p>
+
+    <div class="order-card" data-aos="fade-up" data-aos-delay="200">
+      <div class="order-card-title"><i class="fas fa-receipt" style="color:var(--rose);"></i> Детали заказа</div>
+      <div class="order-row">
+        <span class="row-label"><i class="fas fa-hashtag"></i> Номер заказа</span>
+        <span class="row-value">#{{ order.pk }}</span>
+      </div>
+      <div class="order-row">
+        <span class="row-label"><i class="fas fa-birthday-cake"></i> Товар</span>
+        <span class="row-value">{{ order.product.name }}</span>
+      </div>
+      <div class="order-row">
+        <span class="row-label"><i class="fas fa-layer-group"></i> Количество</span>
+        <span class="row-value">{{ order.quantity }} шт.</span>
+      </div>
+      <div class="order-row">
+        <span class="row-label"><i class="fas fa-phone"></i> Телефон</span>
+        <span class="row-value">{{ order.phone }}</span>
+      </div>
+      <div class="order-row">
+        <span class="row-label"><i class="fas fa-map-marker-alt"></i> Адрес</span>
+        <span class="row-value">{{ order.address }}</span>
+      </div>
+      {% if order.comment %}
+      <div class="order-row">
+        <span class="row-label"><i class="fas fa-comment"></i> Комментарий</span>
+        <span class="row-value">{{ order.comment }}</span>
+      </div>
+      {% endif %}
+      <div class="order-row total-row">
+        <span class="row-label"><i class="fas fa-coins"></i> Итого к оплате</span>
+        <span class="row-value">{{ order.total_price }} ₸</span>
+      </div>
+    </div>
+
+    <div class="alert-box" data-aos="fade-up" data-aos-delay="300">
+      <i class="fas fa-bell"></i>
+      <p>📞 Мы позвоним на номер <strong>{{ order.phone }}</strong> в течение часа для подтверждения заказа и уточнения времени доставки.</p>
+    </div>
+
+    <a href="/" class="btn btn-primary btn-back" data-aos="fade-up" data-aos-delay="350">
+      <i class="fas fa-arrow-left"></i> Вернуться в каталог
+    </a>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+// Confetti burst on page load
+window.addEventListener('load', () => {
+  const colors = ['#E8547A','#F2B705','#7C3AED','#ffffff'];
+  confetti({ particleCount:80, spread:70, origin:{ y:.6 }, colors });
+  setTimeout(() => confetti({ particleCount:40, spread:50, origin:{ y:.5, x:.2 }, colors }), 400);
+  setTimeout(() => confetti({ particleCount:40, spread:50, origin:{ y:.5, x:.8 }, colors }), 600);
+});
+
+// Number count-up for total
+gsap.registerPlugin(ScrollTrigger);
+gsap.from('.order-card', { duration:.8, y:30, opacity:0, ease:'power3.out', delay:.3 });
+gsap.from('.order-row', { duration:.4, x:-15, opacity:0, stagger:.06, delay:.5, ease:'power2.out' });
+</script>
+{% endblock %}

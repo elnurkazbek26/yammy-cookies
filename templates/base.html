@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Вкусняшки{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+  <link rel="stylesheet" href="https://unpkg.com/nprogress@0.2.0/nprogress.css">
+
+  <style>
+    :root {
+      --gold: #F2B705;
+      --rose: #E8547A;
+      --purple: #7C3AED;
+      --dark: #1A0829;
+      --body-bg: #FBF7FF;
+      --text: #2D1B3D;
+      --text-muted: #7B6D80;
+      --card-bg: #FFFFFF;
+      --border: #EDE0F8;
+      --tr: all 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family:'Inter',sans-serif; background:var(--body-bg); color:var(--text); overflow-x:hidden; min-height:100vh; display:flex; flex-direction:column; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width:5px; }
+    ::-webkit-scrollbar-track { background:var(--body-bg); }
+    ::-webkit-scrollbar-thumb { background:linear-gradient(var(--rose),var(--purple)); border-radius:3px; }
+
+    /* NProgress */
+    #nprogress .bar { background:linear-gradient(90deg,var(--rose),var(--gold)) !important; height:3px !important; }
+    #nprogress .peg { box-shadow:0 0 10px var(--rose),0 0 5px var(--rose) !important; }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed; top:0; width:100%; z-index:1000;
+      padding: 1.1rem 2rem;
+      transition: var(--tr);
+    }
+    .navbar.scrolled {
+      background: rgba(251,247,255,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 4px 30px rgba(26,8,41,0.08);
+      padding: 0.7rem 2rem;
+    }
+    .navbar.light { background:rgba(251,247,255,0.96); backdrop-filter:blur(20px); box-shadow:0 4px 30px rgba(26,8,41,0.08); padding:0.7rem 2rem; }
+    .nav-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .nav-logo { font-family:'Playfair Display',serif; font-size:1.75rem; color:white; text-decoration:none; transition:var(--tr); }
+    .navbar.scrolled .nav-logo, .navbar.light .nav-logo { color:var(--dark); }
+    .nav-logo span { color:var(--gold); }
+    .nav-links { display:flex; align-items:center; gap:2rem; list-style:none; }
+    .nav-links a { color:rgba(255,255,255,.88); text-decoration:none; font-weight:500; font-size:.93rem; transition:var(--tr); position:relative; display:flex; align-items:center; gap:.35rem; }
+    .navbar.scrolled .nav-links a, .navbar.light .nav-links a { color:var(--text); }
+    .nav-links a::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:2px; background:var(--rose); transition:width .3s; }
+    .nav-links a:hover::after { width:100%; }
+    .nav-links a:hover { color:var(--rose); }
+    .navbar.scrolled .nav-links a:hover, .navbar.light .nav-links a:hover { color:var(--rose); }
+
+    /* Hamburger */
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:5px; }
+    .hamburger span { display:block; width:24px; height:2px; background:white; border-radius:2px; transition:var(--tr); }
+    .navbar.scrolled .hamburger span, .navbar.light .hamburger span { background:var(--dark); }
+    .hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+    .hamburger.active span:nth-child(2) { opacity:0; }
+    .hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+    @media(max-width:768px) {
+      .hamburger { display:flex; }
+      .nav-links { position:fixed; top:0; right:-100%; width:280px; height:100vh; background:var(--dark); flex-direction:column; justify-content:center; transition:right .4s; padding:2rem; }
+      .nav-links.open { right:0; }
+      .nav-links a { color:white !important; font-size:1.15rem; }
+      .nav-links a::after { display:none; }
+    }
+
+    /* ===== BACK TO TOP ===== */
+    #btt {
+      position:fixed; bottom:2rem; right:2rem; width:48px; height:48px;
+      background:linear-gradient(135deg,var(--rose),var(--purple));
+      color:white; border:none; border-radius:50%; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; font-size:1rem;
+      opacity:0; transform:translateY(20px); transition:var(--tr); z-index:999;
+      box-shadow:0 4px 20px rgba(124,58,237,.4);
+    }
+    #btt.show { opacity:1; transform:translateY(0); }
+    #btt:hover { transform:translateY(-4px); }
+
+    /* ===== MAIN ===== */
+    main { flex:1; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background:var(--dark); color:rgba(255,255,255,.65);
+      padding:3rem 2rem 1.5rem; margin-top:auto; position:relative; overflow:hidden;
+    }
+    footer::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,var(--rose),var(--gold),var(--purple));
+    }
+    footer::after {
+      content:'🍰🥧🎂🧁'; font-size:6rem; position:absolute;
+      right:-20px; bottom:-20px; opacity:.04; line-height:1;
+    }
+    .footer-inner { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:2.5rem; margin-bottom:2rem; }
+    @media(max-width:768px) { .footer-inner { grid-template-columns:1fr; } }
+    .footer-logo { font-family:'Playfair Display',serif; font-size:1.8rem; color:white; margin-bottom:.5rem; }
+    .footer-logo span { color:var(--gold); }
+    .footer-desc { font-size:.88rem; line-height:1.75; opacity:.65; }
+    .footer-heading { font-weight:700; color:white; margin-bottom:1rem; font-size:.9rem; text-transform:uppercase; letter-spacing:.5px; }
+    .footer-links { list-style:none; }
+    .footer-links li { margin-bottom:.6rem; }
+    .footer-links a { color:rgba(255,255,255,.55); text-decoration:none; font-size:.88rem; transition:color .2s; display:flex; align-items:center; gap:.4rem; }
+    .footer-links a:hover { color:var(--gold); }
+    .footer-bottom { max-width:1200px; margin:0 auto; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,.08); text-align:center; font-size:.83rem; }
+    .footer-bottom strong { color:var(--gold); }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.8rem 2rem; border-radius:50px; font-family:'Inter',sans-serif;
+      font-weight:600; font-size:.93rem; cursor:pointer; text-decoration:none;
+      transition:var(--tr); border:none; position:relative; overflow:hidden;
+    }
+    .btn::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0); transition:background .3s; }
+    .btn:hover::after { background:rgba(255,255,255,.15); }
+    .btn-primary { background:linear-gradient(135deg,var(--rose),#c0392b); color:white; box-shadow:0 4px 20px rgba(232,84,122,.35); }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(232,84,122,.5); }
+    .btn-gold { background:linear-gradient(135deg,var(--gold),#d4a017); color:white; box-shadow:0 4px 20px rgba(242,183,5,.35); }
+    .btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(242,183,5,.5); }
+    .btn-dark { background:var(--dark); color:white; }
+    .btn-dark:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(26,8,41,.4); }
+    .btn-outline { background:transparent; border:2px solid var(--rose); color:var(--rose); }
+    .btn-outline:hover { background:var(--rose); color:white; }
+
+    /* ===== FORM ===== */
+    .form-group { margin-bottom:1.3rem; }
+    .form-label { display:block; font-weight:600; font-size:.82rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:.45rem; }
+    .form-input {
+      width:100%; padding:.85rem 1.1rem; border:2px solid var(--border);
+      border-radius:12px; font-family:'Inter',sans-serif; font-size:.95rem;
+      color:var(--text); background:white; transition:var(--tr); resize:vertical;
+    }
+    .form-input:focus { outline:none; border-color:var(--rose); box-shadow:0 0 0 4px rgba(232,84,122,.1); }
+    .form-error { color:#e74c3c; font-size:.82rem; margin-top:.3rem; display:flex; align-items:center; gap:.3rem; }
+
+    /* ===== MESSAGES ===== */
+    .messages-wrap { max-width:900px; margin:1rem auto; padding:0 1rem; }
+    .msg { padding:.85rem 1.2rem; border-radius:12px; margin-bottom:.5rem; font-weight:600; font-size:.9rem; display:flex; align-items:center; gap:.5rem; }
+    .msg-success { background:#d4edda; color:#155724; }
+    .msg-error { background:#f8d7da; color:#721c24; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<script src="https://unpkg.com/nprogress@0.2.0/nprogress.js"></script>
+<script>NProgress.start();</script>
+
+<nav class="navbar {% block nav_class %}{% endblock %}" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Вкусня<span>шки</span></a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/"><i class="fas fa-home"></i> Главная</a></li>
+      <li><a href="/#catalog"><i class="fas fa-th-large"></i> Каталог</a></li>
+      <li><a href="/admin/" target="_blank"><i class="fas fa-user-shield"></i> Администратор</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<main>
+  {% if messages %}
+  <div class="messages-wrap">
+    {% for msg in messages %}
+    <div class="msg msg-{{ msg.tags }}"><i class="fas fa-info-circle"></i>{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">Вкусня<span>шки</span></div>
+      <p class="footer-desc">Домашняя выпечка с любовью и заботой. Пироги, торты и сладости — свежие, без консервантов, прямо к вашему столу.</p>
+    </div>
+    <div>
+      <div class="footer-heading">Разделы</div>
+      <ul class="footer-links">
+        <li><a href="/"><i class="fas fa-chevron-right"></i> Главная</a></li>
+        <li><a href="/#catalog"><i class="fas fa-chevron-right"></i> Каталог</a></li>
+        <li><a href="/admin/"><i class="fas fa-chevron-right"></i> Панель управления</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Контакты</div>
+      <ul class="footer-links">
+        <li><a href="tel:+77001234567"><i class="fas fa-phone"></i> +7 (700) 123-45-67</a></li>
+        <li><a href="mailto:hello@vkusnyashki.kz"><i class="fas fa-envelope"></i> hello@vkusnyashki.kz</a></li>
+        <li><a href="#"><i class="fas fa-map-marker-alt"></i> г. Алматы</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 <strong>Вкусняшки</strong> — Всё с любовью и заботой ❤️</p>
+  </div>
+</footer>
+
+<button id="btt" title="Наверх"><i class="fas fa-arrow-up"></i></button>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+AOS.init({ duration:700, once:true, offset:60 });
+window.addEventListener('load', () => NProgress.done());
+
+const navbar = document.getElementById('navbar');
+const btt = document.getElementById('btt');
+const isLight = navbar.classList.contains('light');
+
+window.addEventListener('scroll', () => {
+  if (!isLight) navbar.classList.toggle('scrolled', window.scrollY > 60);
+  btt.classList.toggle('show', window.scrollY > 300);
+});
+
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('nav-links');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('active');
+  navLinks.classList.toggle('open');
+});
+navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  hamburger.classList.remove('active');
+  navLinks.classList.remove('open');
+}));
+
+btt.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
