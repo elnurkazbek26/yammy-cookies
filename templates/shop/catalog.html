@@ -415,22 +415,31 @@ let audioCtx = null;
 
 function playPop() {
   if (!audioCtx) audioCtx = new AudioCtx();
+  const t = audioCtx.currentTime;
 
-  const osc = audioCtx.createOscillator();
+  // Низкочастотный buzz — имитация вибрации
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
-  osc.connect(gain);
+  osc1.connect(gain);
+  osc2.connect(gain);
   gain.connect(audioCtx.destination);
 
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(520, audioCtx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.12);
+  osc1.type = 'sawtooth';
+  osc1.frequency.setValueAtTime(80, t);
+  osc1.frequency.exponentialRampToValueAtTime(40, t + 0.18);
 
-  gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+  osc2.type = 'square';
+  osc2.frequency.setValueAtTime(60, t);
+  osc2.frequency.exponentialRampToValueAtTime(30, t + 0.18);
 
-  osc.start(audioCtx.currentTime);
-  osc.stop(audioCtx.currentTime + 0.15);
+  gain.gain.setValueAtTime(0.0, t);
+  gain.gain.linearRampToValueAtTime(0.12, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+
+  osc1.start(t); osc1.stop(t + 0.18);
+  osc2.start(t); osc2.stop(t + 0.18);
 }
 
 document.querySelectorAll('.product-card').forEach(card => {
