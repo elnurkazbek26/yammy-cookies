@@ -11,6 +11,11 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 _hosts = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost')
 ALLOWED_HOSTS = [h.strip() for h in _hosts.split(',')]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-dde1a.up.railway.app',
+    'https://*.railway.app',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
