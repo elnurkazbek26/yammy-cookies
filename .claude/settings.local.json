@@ -4,7 +4,12 @@
       "Bash(dir *)",
       "Bash(.venv\\\\Scripts\\\\pip install *)",
       "PowerShell(New-Item *)",
-      "PowerShell(Start-Process \"http://127.0.0.1:8000/\")"
+      "PowerShell(Start-Process \"http://127.0.0.1:8000/\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(.venv/Scripts/python.exe manage.py makemigrations shop)",
+      "Bash(.venv/Scripts/python.exe manage.py migrate)"
     ]
   }
 }

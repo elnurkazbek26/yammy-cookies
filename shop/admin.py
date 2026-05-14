@@ -10,7 +10,10 @@ admin.site.index_title = 'Добро пожаловать в панель упр
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'product_count']
+    list_display = ['position', 'name', 'slug', 'product_count']
+    list_display_links = ['name']
+    list_editable = ['position']
+    ordering = ['position']
     prepopulated_fields = {'slug': ('name',)}
 
     def product_count(self, obj):
