@@ -409,6 +409,34 @@ if(window.innerWidth > 768){
   VanillaTilt.init(document.querySelectorAll('[data-tilt]'),{ max:6, speed:400, glare:true, 'max-glare':.12 });
 }
 
+// === HOVER SOUND (Web Audio API) ===
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function playPop() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.12);
+
+  gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.15);
+}
+
+document.querySelectorAll('.product-card').forEach(card => {
+  card.addEventListener('mouseenter', playPop);
+});
+
 // === Build proper WhatsApp links with full message ===
 document.querySelectorAll('.card-wa-btn').forEach(btn => {
   const name = btn.dataset.name;
